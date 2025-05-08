@@ -7,10 +7,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
-<script>
-  emailjs.init("YOUR_USER_ID"); // Replace with your EmailJS user ID
-</script>
 
 
   <style>
@@ -272,19 +268,31 @@ html2canvas(printArea).then(canvas => {
   const formData = new FormData();
   formData.append('file', blob, filename);
 
-  emailjs.send("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", {
-    to_email: userEmail,
-    from_email: "egypt.in.frankfurt@gmail.com",
-    to_name: name,
-    transaction_type: transaction
-  }, "YOUR_USER_ID", blob).then(function(response) {
-    console.log("Email sent successfully", response.status, response.text);
-    pdf.save(filename); // Optional: still download locally
-  }, function(error) {
-    console.error("Email sending failed", error);
+pdf.output('blob').then(blob => {
+  const filename = `${name} - ${number} - ${transaction}`.replace(/\s+/g, '_') + '.pdf';
+  const userEmail = document.getElementById('user-email').value.trim();
+  const formData = new FormData();
+  formData.append('pdf', blob, filename);
+  formData.append('email', userEmail);
+  formData.append('name', name);
+  formData.append('transaction', transaction);
+
+  fetch('http://localhost:3000/send-pdf', {
+    method: 'POST',
+    body: formData
+  }).then(res => {
+    if (res.ok) {
+      showToast("📧 تم إرسال البريد الإلكتروني بنجاح");
+      pdf.save(filename); // download PDF locally
+    } else {
+      showToast("❌ فشل في إرسال البريد الإلكتروني", false);
+    }
+  }).catch(err => {
+    console.error("Fetch error:", err);
     showToast("❌ تعذر إرسال البريد الإلكتروني.", false);
   });
 });
+
 
 });
   document.getElementById('name').value = '';
