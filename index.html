@@ -290,7 +290,7 @@ pdf.output('blob').then(blob => {
   }).then(res => {
     if (res.ok) {
       showToast("📧 تم إرسال البريد الإلكتروني بنجاح");
-      pdf.save(filename); // download PDF locally
+      pdf.save(filename);
     } else {
       showToast("❌ فشل في إرسال البريد الإلكتروني", false);
     }
