@@ -212,6 +212,9 @@ document.getElementById('login-btn').onclick = async () => {
   const password = document.getElementById('password').value;
 
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+console.log("Login data:", data);
+console.log("Login error:", error);
+
 
   if (error) {
     return showToast('خطأ أثناء تسجيل الدخول: ' + error.message, false);
