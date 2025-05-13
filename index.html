@@ -210,21 +210,14 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 document.getElementById('login-btn').onclick = async () => {
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
-
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-console.log("Login data:", data);
-console.log("Login error:", error);
-
-
-  if (error) {
-    return showToast('خطأ أثناء تسجيل الدخول: ' + error.message, false);
+  if (error) return showToast('خطأ أثناء تسجيل الدخول: ' + error.message, false);
+  if (data.session) {
+    showToast('✅ تم تسجيل الدخول بنجاح.');
+    document.getElementById('auth-section').style.display = 'none';
+    document.getElementById('app-section').style.display = 'block';
   }
-
-  showToast('✅ تم تسجيل الدخول بنجاح.');
-  document.getElementById('auth-section').style.display = 'none';
-  document.getElementById('app-section').style.display = 'block';
 };
-
 
 document.getElementById('logout-btn').onclick = async () => {
   await supabase.auth.signOut();
@@ -290,7 +283,7 @@ pdf.output('blob').then(blob => {
   }).then(res => {
     if (res.ok) {
       showToast("📧 تم إرسال البريد الإلكتروني بنجاح");
-      pdf.save(filename);
+      pdf.save(filename); // download PDF locally
     } else {
       showToast("❌ فشل في إرسال البريد الإلكتروني", false);
     }
