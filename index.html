@@ -8,7 +8,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -46,13 +45,6 @@
 </head>
 
 <body>
-
- <div id="print-area" style="position: absolute; left: -9999px; font-size: 18px; padding: 20px; width: 500px;">
-  <p id="print-name"></p>
-  <p id="print-number"></p>
-  <p id="print-transaction"></p>
-</div>
-
   <h2 style="margin-bottom: 40px;">طلبات المعاملات القنصلية</h2>
 
   <div id="auth-section">
@@ -249,8 +241,8 @@ document.getElementById('submit-btn').onclick = async () => {
   const number = await generateUniqueNumber();
   const { error } = await supabase.from('civil_status').insert({ number, status: 'جارى مراجعة الطلب', notes: '', transaction });
   if (error) return showToast('خطأ أثناء تسجيل الطلب: ' + error.message, false);
-  document.getElementById('result').innerText = `✅ تم تسجيل الطلب بنجاح. رقم الطلب: ${number}`;
-// Set printable HTML content
+  document.getElementById('result').innerText = ✅ تم تسجيل الطلب بنجاح. رقم الطلب: ${number};
+  // Set printable HTML content
 document.getElementById('print-name').innerText = `اسم مقدم الطلب: ${name}`;
 document.getElementById('print-number').innerText = `رقم الطلب: ${number}`;
 document.getElementById('print-transaction').innerText = `نوع المعاملة: ${transaction}`;
@@ -263,38 +255,9 @@ html2canvas(printArea).then(canvas => {
   const pdf = new jsPDF();
   pdf.addImage(imgData, 'PNG', 10, 10, 180, 0);
   const filename = `${name} - ${number} - ${transaction}`.replace(/\s+/g, '_') + '.pdf';
-  pdf.output('blob').then(function(blob) {
-  const userEmail = document.getElementById('user-email').value.trim();
-  const formData = new FormData();
-  formData.append('file', blob, filename);
-
-pdf.output('blob').then(blob => {
-  const filename = `${name} - ${number} - ${transaction}`.replace(/\s+/g, '_') + '.pdf';
-  const userEmail = document.getElementById('user-email').value.trim();
-  const formData = new FormData();
-  formData.append('pdf', blob, filename);
-  formData.append('email', userEmail);
-  formData.append('name', name);
-  formData.append('transaction', transaction);
-
-  fetch('http://localhost:3000/send-pdf', {
-    method: 'POST',
-    body: formData
-  }).then(res => {
-    if (res.ok) {
-      showToast("📧 تم إرسال البريد الإلكتروني بنجاح");
-      pdf.save(filename); // download PDF locally
-    } else {
-      showToast("❌ فشل في إرسال البريد الإلكتروني", false);
-    }
-  }).catch(err => {
-    console.error("Fetch error:", err);
-    showToast("❌ تعذر إرسال البريد الإلكتروني.", false);
-  });
+  pdf.save(filename);
 });
 
-
-});
   document.getElementById('name').value = '';
   document.getElementById('phone').value = '';
   document.getElementById('user-email').value = '';
@@ -334,11 +297,11 @@ document.getElementById('update-btn').onclick = async () => {
     }
   }
   if (successNumbers.length > 0 && errors.length > 0) {
-    showToast(`✅ تم تحديث الأرقام: ${successNumbers.join(', ')}\n❌ الأرقام غير الموجودة: ${errors.join(', ')}`, false);
+    showToast(✅ تم تحديث الأرقام: ${successNumbers.join(', ')}\n❌ الأرقام غير الموجودة: ${errors.join(', ')}, false);
   } else if (successNumbers.length > 0) {
-    showToast(`✅ تم التحديث بنجاح للأرقام: ${successNumbers.join(', ')}`);
+    showToast(✅ تم التحديث بنجاح للأرقام: ${successNumbers.join(', ')});
   } else if (errors.length > 0) {
-    showToast(`❌ الأرقام غير الموجودة: ${errors.join(', ')}`, false);
+    showToast(❌ الأرقام غير الموجودة: ${errors.join(', ')}, false);
   }
   document.getElementById('existing-number').value = '';
   document.getElementById('status-select').value = '';
@@ -346,6 +309,11 @@ document.getElementById('update-btn').onclick = async () => {
   document.getElementById('edit-transaction-type').value = '';
 };
 </script>
+<div id="print-area" style="position: absolute; left: -9999px; font-size: 18px; padding: 20px; width: 500px;">
+  <p id="print-name"></p>
+  <p id="print-number"></p>
+  <p id="print-transaction"></p>
+</div>
 
 </body>
 </html>
