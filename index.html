@@ -48,11 +48,10 @@
   <h2 style="margin-bottom: 40px;">طلبات المعاملات القنصلية</h2>
 
   <div id="auth-section">
-    <label>البريد الإلكتروني:</label>
-    <input type="email" id="email" />
-    <label>كلمة المرور:</label>
-    <input type="password" id="password" />
-    <button id="login-btn">تسجيل الدخول</button>
+  <button id="google-login-btn" style="padding: 12px; font-size: 18px; background: #4285F4; color: white; border: none; border-radius: 5px; cursor: pointer;">
+  تسجيل الدخول باستخدام Gmail
+</button>
+
   </div>
 
   <div id="app-section">
@@ -198,6 +197,12 @@ https://www.facebook.com/EgyptconsulateFrankfurt
 const SUPABASE_URL = 'https://esbgozuigjdavcxiaxon.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzYmdvenVpZ2pkYXZjeGlheG9uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyMjU4NzUsImV4cCI6MjA1OTgwMTg3NX0.OiOH_0ZcTUPu6oMGILsq5oqm1FdCDBvzcHozs-4DNY0';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+document.getElementById('google-login-btn').onclick = async () => {
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+  });
+  if (error) return showToast('فشل تسجيل الدخول عبر Google: ' + error.message, false);
+};
 
 document.getElementById('login-btn').onclick = async () => {
   const email = document.getElementById('email').value;
@@ -308,6 +313,23 @@ document.getElementById('update-btn').onclick = async () => {
   document.getElementById('notes').value = '';
   document.getElementById('edit-transaction-type').value = '';
 };
+window.addEventListener('DOMContentLoaded', async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    const allowedEmails = ['egypt.in.frankfurt@gmail.com']; // ✅ Change this to the authorized Gmail
+    const userEmail = session.user.email;
+
+    if (!allowedEmails.includes(userEmail)) {
+      await supabase.auth.signOut();
+      return showToast('❌ هذا الحساب غير مصرح له بالدخول.', false);
+    }
+
+    document.getElementById('auth-section').style.display = 'none';
+    document.getElementById('app-section').style.display = 'block';
+    showToast('✅ تم تسجيل الدخول بنجاح');
+  }
+});
+
 </script>
 <div id="print-area" style="position: absolute; left: -9999px; font-size: 18px; padding: 20px; width: 500px;">
   <p id="print-name"></p>
