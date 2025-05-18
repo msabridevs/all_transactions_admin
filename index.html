@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
@@ -51,6 +51,14 @@
   <button id="google-login-btn" style="padding: 12px; font-size: 18px; background: #4285F4; color: white; border: none; border-radius: 5px; cursor: pointer;">
   تسجيل الدخول باستخدام Gmail
 </button>
+<label>البريد الإلكتروني:</label>
+<input type="email" id="email" />
+
+<label>كلمة المرور:</label>
+<input type="password" id="password" />
+
+<button id="login-btn">تسجيل الدخول</button>
+
 
   </div>
 
@@ -250,7 +258,8 @@ document.getElementById('submit-btn').onclick = async () => {
   const number = await generateUniqueNumber();
   const { error } = await supabase.from('civil_status').insert({ number, status: 'جارى مراجعة الطلب', notes: '', transaction });
   if (error) return showToast('خطأ أثناء تسجيل الطلب: ' + error.message, false);
-  document.getElementById('result').innerText = ✅ تم تسجيل الطلب بنجاح. رقم الطلب: ${number};
+  document.getElementById('result').innerText = `✅ تم تسجيل الطلب بنجاح. رقم الطلب: ${number}`;
+
   // Set printable HTML content
 document.getElementById('print-name').innerText = `اسم مقدم الطلب: ${name}`;
 document.getElementById('print-number').innerText = `رقم الطلب: ${number}`;
@@ -306,7 +315,8 @@ document.getElementById('update-btn').onclick = async () => {
     }
   }
   if (successNumbers.length > 0 && errors.length > 0) {
-    showToast(✅ تم تحديث الأرقام: ${successNumbers.join(', ')}\n❌ الأرقام غير الموجودة: ${errors.join(', ')}, false);
+    showToast(`✅ تم تحديث الأرقام: ${successNumbers.join(', ')}\n❌ الأرقام غير الموجودة: ${errors.join(', ')}`, false);
+
   } else if (successNumbers.length > 0) {
     showToast(✅ تم التحديث بنجاح للأرقام: ${successNumbers.join(', ')});
   } else if (errors.length > 0) {
