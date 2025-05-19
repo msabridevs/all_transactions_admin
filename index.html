@@ -9,7 +9,7 @@
   <script>
     const SUPABASE_URL = 'https://esbgozuigjdavcxiaxon.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzYmdvenVpZ2pkYXZjeGlheG9uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyMjU4NzUsImV4cCI6MjA1OTgwMTg3NX0.OiOH_0ZcTUPu6oMGILsq5oqm1FdCDBvzcHozs-4DNY0';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 
     async function init() {
       const { data: { session } } = await supabase.auth.getSession();
@@ -51,17 +51,6 @@
 
   <div id="app-section" style="display:none;">
     <button onclick="supabase.auth.signOut().then(() => location.reload())">تسجيل الخروج</button>
-    <!DOCTYPE html>
-<html lang="ar">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>طلبات المعاملات القنصلية</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
-  <style>
     body {
       font-family: Arial, sans-serif;
       padding: 20px;
@@ -352,6 +341,4 @@ document.getElementById('update-btn').onclick = async () => {
 
 </body>
 </html>
-  </div>
-</body>
-</html>
+
