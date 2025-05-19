@@ -52,7 +52,325 @@
 
   <div id="app-section" style="display:none;">
     <button onclick="supabase.auth.signOut().then(() => location.reload())">تسجيل الخروج</button>
-    <p>مرحبًا بك في التطبيق بعد تسجيل الدخول.</p>
+    <!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>طلبات المعاملات القنصلية</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      direction: rtl;
+      text-align: right;
+    }
+    label, input, textarea, button, select {
+      display: block;
+      margin-bottom: 10px;
+      width: 100%;
+      font-size: 18px;
+    }
+    input, textarea, select {
+      padding: 10px;
+    }
+    .result {
+      margin-top: 10px;
+      padding: 20px;
+      border: 1px solid #ccc;
+      background: #f9f9f9;
+      font-size: 18px;
+    }
+    #app-section { display: none; }
+    .flex-container {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .panel {
+      flex: 1 1 400px;
+      min-width: 300px;
+    }
+  </style>
+</head>
+
+<body>
+  <h2 style="margin-bottom: 40px;">طلبات المعاملات القنصلية</h2>
+
+  <div id="auth-section">
+    <label>البريد الإلكتروني:</label>
+    <input type="email" id="email" />
+    <label>كلمة المرور:</label>
+    <input type="password" id="password" />
+    <button id="login-btn">تسجيل الدخول</button>
+  </div>
+
+  <div id="app-section">
+    <button id="logout-btn">تسجيل الخروج</button>
+    <div class="flex-container">
+      <div class="panel">
+        <h3>طلب جديد</h3>
+        <label>نوع المعاملة:</label>
+        <select id="transaction-type">
+          <option value="">اختر نوع المعاملة</option>
+          <option value="قيد ميلاد">قيد ميلاد</option>
+          <option value="بطاقة الرقم القومى">بطاقة الرقم القومى</option>
+          <option value="صحيفة الحالة الجنائية">صحيفة الحالة الجنائية</option>
+          <option value="قيد فردى">قيد فردى</option>
+          <option value="قيد عائلى">قيد عائلى</option>
+          <option value="قيد طلاق">قيد طلاق</option>
+          <option value="قيد زواج">قيد زواج</option>
+          <option value="شهادة وفاة">شهادة وفاة</option>
+          <option value="إفادة">إفادة</option>
+          <option value="إصدار جواز سفر لأول مرة">إصدار جواز سفر لأول مرة</option>
+          <option value="تجديد جواز سفر">تجديد جواز سفر</option>
+          <option value="بحث الجنسية">بحث الجنسية</option>
+          <option value="إسترداد الجنسية">إسترداد الجنسية</option>
+          <option value="الإذن بالتجنس مع الاحتفاظ بالجنسية المصرية">الإذن بالتجنس مع الاحتفاظ بالجنسية المصرية</option>
+          <option value="الإذن بالتجنس مع عدم الاحتفاظ بالجنسية المصرية">الإذن بالتجنس مع عدم الاحتفاظ بالجنسية المصرية</option>
+        </select>
+
+        <label>اسم مقدم الطلب:</label>
+        <input type="text" id="name" />
+        <label>رقم الهاتف:</label>
+        <input type="tel" id="phone" />
+        <label>البريد الإلكتروني:</label>
+        <input type="email" id="user-email" />
+
+        <button id="submit-btn">تسجيل الطلب</button>
+        <div class="result" id="result"></div>
+      </div>
+
+      <div class="panel">
+        <h3>تحديث أو تعديل الطلب</h3>
+        <label>رقم الطلب (أدخل رقماً أو عدة أرقام مفصولة بفواصل):</label>
+        <input type="text" id="existing-number" />
+
+        <label>رفع ملفات PDF لاستخراج أرقام الطلبات:</label>
+        <input type="file" id="pdf-upload" multiple accept="application/pdf" />
+        <button id="extract-codes-btn">استخراج الأكواد</button>
+
+        <label>اختر الحالة الجديدة:</label>
+        <select id="status-select">
+          <option value="">اختر الحالة</option>
+          <option value="وردت المعاملة. رجاء إحضار الايصال والحضور للاستلام خلال المواعيد الرسمية المعلنة.">وردت المعاملة</option>
+          <option value="مطلوب استيفاء">مطلوب استيفاء</option>
+          <option value="جارى مراجعة الطلب">جارى مراجعة الطلب</option>
+          <option value="تم الإرسال بالبريد">تم الإرسال بالبريد</option>
+        </select>
+
+<label for="notes">ملاحظات (اختياري):</label>
+<select id="notes" dir="rtl" style="width: 100%; min-width: 300px; font-size: 16px;">
+  <option value="">- اختر أو اكتب ملاحظة -</option>
+
+  <option value="للاستفسار عن الاجراءات الخاصة بجميع المعاملات القنصلية، يرجي مراجعة الموقع الرسمى للبعثة:
+
+https://www.egyptconsulate-frankfurt.de/
+هذا، ويمكن التقدم للبعثة خلال مواعيد العمل الرسمية التى تم الإعلان عنها على الصفحة، بدون حجز موعد مسبق.">
+    للاستفسار عن الإجراءات لكافة المعاملات القنصلية
+  </option>
+
+  <option value="نفيدكم علما بأن جواز السفر المطلوب قد وصل بمقر البعثة- يمكنكم الحضور خلال أيام العمل القنصلى من الساعة 14:00 عصرا حتى 16:00 عصرا للاستلام . 
+برجاء احضار أصل جواز السفر وايصال الاستلام. حتى يتسنى تسليم جواز سفركم الجديد. فى حالة طلب ارسال الجواز عبر البريد، فيجب ارسال الاتى فى مظروف بالبريد المسجل:
+1- أصل ايصال الاستلام.
+2- جواز السفر السابق.
+3- مظروف بالبريد المسجل مدون عليه الاسم والعنوان والطوابع اللازمة لإعادة الارسال اليك.
+4- اقرار موقع برغبتك فى ارسال جواز السفر عبر البريد وفى حالة ضياعه تتحمل كامل المسئولية وصيغة الاقرار هى:
+السيد قنصل عام جمهورية مصر العربية فى فرانكفورت
+يرجى التكرم بارسال جواز السفر باسم / (صاحب الشأن) عبر البريد وفى حالة ضياعه اتحمل المسئولية كاملة، دون أدنى مسئولية على القنصلية العامة.
+وتفضلوا بقبول وافر الاحترام،،
+الاسم /
+التاريخ /
+التوقيع /
+على أن يتم إحضار أصل جواز سفرك القديم او إرساله بالبريد للإلغاء واعادته بالبريد أو تسليمه لك مع جواز السفر الجديد بعد الالغاء.">
+    جواز السفر وصل - تعليمات الحضور أو البريد
+  </option>
+
+  <option value="نفيدكم علما بأن جواز السفر المطلوب لم يصل بعد وسيتم ابلاغكم فور وصوله">
+    جواز السفر لم يصل بعد
+  </option>
+
+  <option value="في حال الرغبة في الحصول على الافادة باللغة العربية أو الالمانية بمضمون ذلك فيمكن طلب الحضور للبعثة للتقدم بطلب اصدار الافادة الرسمية في مواعيد العمل  من الساعة 9:30 صباحاً حتى الساعة 13:30 مساء على أن يتم استلام الافادة بعد الساعة 14:30 مساء حتى الساعة 16:00 مساء، في نفس اليوم. يلزم احضار أصل جواز السفر الألماني وصورة منه، وأصل شهادة الميلاد المميكنة وصورة منها وصورة من الافادة السابق صدورها المتضمنة رقم وتاريخ القرار الخاص بالاذن بالتجنس بالجنسية الالمانية مع عدم الاحتفاظ بالجنسية المصرية، علماً بأن رسوم إصدار الافادة الواحدة 63.00 يورو.">
+    طلب إفادة تجنس مع عدم الاحتفاظ بالجنسية - بالحضور
+  </option>
+
+  <option value="يمكن طلب إرسال الإفادة بالبريد على أن يراعي ارفاق طلب مكتوب لاصدار تلك الافادة الرسمية، والمستندات: أصل جواز السفر الألماني وصورة منه، وأصل شهادة الميلاد المميكنة وصورة منها وصورة من الافادة السابق صدورها المتضمنة رقم وتاريخ القرار الخاص بالاذن بالتجنس بالجنسية الالمانية مع عدم الاحتفاظ بالجنسية المصرية، ومبلغ 63.00 يورو، ومظروف اعادة مستوفي قيمة طوابع الاعادة، ومدون عليه الاسم والعنوان تفصيلاً في المانيا حتى يتسنى الارسال.">
+    طلب إفادة تجنس مع عدم الاحتفاظ - بالبريد
+  </option>
+
+  <option value="بعد الموافقة على رد الجنسية، في حال الرغبة في بدء اجراءات استخراج بطاقة الرقم القومى أو استخراج جواز سفر:
+يلزم أولاً  البدء فى استخراج بطاقة الرقم القومى وبعد اصدارها، يتم البدء فى اجراءات استخراج جواز السفر.">
+    تعليمات بعد ورود الموافقة على استرداد الجنسية
+  </option>
+
+  <option value="تتشرف القنصلية بالإفادة بورود رد الادارة العامة للجوازات والهجرة والجنسية على الإذن بالتجنس بالجنسية الالمانية مع الاحتفاظ بالجنسية المصرية، يمكنكم الحضور الى البعثة خلال أيام العمل الرسمية عدا أيام العطلات والاجازات الرسمية للحصول على افادة رسمية باللغة الالمانية تفيد بصدور القرار الإذن بالتجنس بالجنسية الألمانية، على أن يتم احضار أصل جواز السفر المصري وصورة منه. علماً بأن رسوم الافادة الواحدة 63.00 يورو.">
+    الحضور لتسلم إفادة التجنس مع الاحتفاظ بالجنسية
+  </option>
+
+  <option value="وردت بطاقة الرقم القومي الخاصة بكم. للاستلام، يرجي اتباع ما يلي:
+• الحضور شخصياً مع إحضار أصل إيصال الاستلام خلال مواعيد العمل الرسمية في أيام العمل الأسبوعية عدا أيام العطلات والاجازات الرسمية، علماً بأن الاجازات الرسمية تقوم البعثة بالإعلان عنها على صفحتها بموقع التواصل الاجتماعى فيسبوك
+https://www.facebook.com/EgyptconsulateFrankfurt
+• أو إرسال أصل إيصال الاستلام بالبريد المسجل مع مظروف إعادة (مدون عليه عنوانكم – مستوفي الطوابع – يفضل وجود رقم تتبعي) وإقرار موقع من جانبكم يفيد بعدم تحمل البعثة المسئولية حال ضياع البطاقة في البريد.">
+    تعليمات استلام بطاقة الرقم القومي
+  </option>
+
+</select>
+
+        <label>تعديل نوع المعاملة (اختياري):</label>
+        <select id="edit-transaction-type">
+          <option value="">- بدون تعديل -</option>
+          <option value="قيد ميلاد">قيد ميلاد</option>
+          <option value="بطاقة الرقم القومى">بطاقة الرقم القومى</option>
+          <option value="صحيفة الحالة الجنائية">صحيفة الحالة الجنائية</option>
+          <option value="قيد فردى">قيد فردى</option>
+          <option value="قيد عائلى">قيد عائلى</option>
+          <option value="قيد طلاق">قيد طلاق</option>
+          <option value="قيد زواج">قيد زواج</option>
+          <option value="شهادة وفاة">شهادة وفاة</option>
+          <option value="إفادة">إفادة</option>
+          <option value="إصدار جواز سفر لأول مرة">إصدار جواز سفر لأول مرة</option>
+          <option value="تجديد جواز سفر">تجديد جواز سفر</option>
+          <option value="بحث الجنسية">بحث الجنسية</option>
+          <option value="إسترداد الجنسية">إسترداد الجنسية</option>
+          <option value="الإذن بالتجنس مع الاحتفاظ بالجنسية المصرية">الإذن بالتجنس مع الاحتفاظ بالجنسية المصرية</option>
+          <option value="الإذن بالتجنس مع عدم الاحتفاظ بالجنسية المصرية">الإذن بالتجنس مع عدم الاحتفاظ بالجنسية المصرية</option>
+        </select>
+
+        <button id="update-btn">تحديث الحالة</button>
+        <div class="result" id="update-result"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" style="position: fixed; top: 100px; right: 20px; background: #333; color: white; padding: 10px 20px; border-radius: 8px; display: none; font-size: 18px; z-index: 9999;"></div>
+
+<script>
+const SUPABASE_URL = 'https://esbgozuigjdavcxiaxon.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzYmdvenVpZ2pkYXZjeGlheG9uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyMjU4NzUsImV4cCI6MjA1OTgwMTg3NX0.OiOH_0ZcTUPu6oMGILsq5oqm1FdCDBvzcHozs-4DNY0';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+document.getElementById('login-btn').onclick = async () => {
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) return showToast('خطأ أثناء تسجيل الدخول: ' + error.message, false);
+  if (data.session) {
+    showToast('✅ تم تسجيل الدخول بنجاح.');
+    document.getElementById('auth-section').style.display = 'none';
+    document.getElementById('app-section').style.display = 'block';
+  }
+};
+
+document.getElementById('logout-btn').onclick = async () => {
+  await supabase.auth.signOut();
+  location.reload();
+};
+
+function showToast(message, success = true) {
+  const toast = document.getElementById('toast');
+  toast.style.background = success ? '#28a745' : '#dc3545';
+  toast.innerText = message;
+  toast.style.display = 'block';
+  setTimeout(() => { toast.style.display = 'none'; }, 7000);
+}
+
+async function generateUniqueNumber() {
+  const { data } = await supabase.from('civil_status').select('number');
+  const existing = new Set(data.map(row => row.number));
+  let number;
+  do {
+    number = String(Math.floor(10000 + Math.random() * 90000));
+  } while (existing.has(number));
+  return number;
+}
+
+document.getElementById('submit-btn').onclick = async () => {
+  const name = document.getElementById('name').value.trim();
+  const transaction = document.getElementById('transaction-type').value;
+  if (!name || !transaction) return showToast('يرجى إدخال الاسم ونوع المعاملة.', false);
+  const number = await generateUniqueNumber();
+  const { error } = await supabase.from('civil_status').insert({ number, status: 'جارى مراجعة الطلب', notes: '', transaction });
+  if (error) return showToast('خطأ أثناء تسجيل الطلب: ' + error.message, false);
+  document.getElementById('result').innerText = ✅ تم تسجيل الطلب بنجاح. رقم الطلب: ${number};
+  // Set printable HTML content
+document.getElementById('print-name').innerText = اسم مقدم الطلب: ${name};
+document.getElementById('print-number').innerText = رقم الطلب: ${number};
+document.getElementById('print-transaction').innerText = نوع المعاملة: ${transaction};
+
+// Convert to image and save as PDF
+const printArea = document.getElementById('print-area');
+html2canvas(printArea).then(canvas => {
+  const imgData = canvas.toDataURL('image/png');
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF();
+  pdf.addImage(imgData, 'PNG', 10, 10, 180, 0);
+  const filename = ${name} - ${number} - ${transaction}.replace(/\s+/g, '_') + '.pdf';
+  pdf.save(filename);
+});
+
+  document.getElementById('name').value = '';
+  document.getElementById('phone').value = '';
+  document.getElementById('user-email').value = '';
+  document.getElementById('transaction-type').value = '';
+};
+
+document.getElementById('extract-codes-btn').onclick = () => {
+  const files = document.getElementById('pdf-upload').files;
+  if (!files.length) return alert('اختر ملفات PDF أولاً.');
+  const codes = [];
+  for (const file of files) {
+    const name = file.name.split('.')[0];
+    const match = name.match(/\d+/);
+    if (match) codes.push(match[0]);
+  }
+  document.getElementById('existing-number').value = codes.join(', ');
+};
+
+document.getElementById('update-btn').onclick = async () => {
+  const numbersInput = document.getElementById('existing-number').value;
+  const status = document.getElementById('status-select').value;
+  const notes = document.getElementById('notes').value.trim();
+  const transaction = document.getElementById('edit-transaction-type').value;
+  if (!numbersInput) return showToast('يرجى إدخال رقم أو أرقام الطلب.', false);
+  const numbers = numbersInput.split(',').map(num => num.trim());
+  const { data } = await supabase.from('civil_status').select('number');
+  const existingNumbers = new Set(data.map(r => r.number));
+  let errors = [], successNumbers = [];
+  for (let num of numbers) {
+    if (!existingNumbers.has(num)) {
+      errors.push(num);
+    } else {
+      let updateData = { status, notes };
+      if (transaction) updateData.transaction = transaction;
+      await supabase.from('civil_status').update(updateData).eq('number', num);
+      successNumbers.push(num);
+    }
+  }
+  if (successNumbers.length > 0 && errors.length > 0) {
+    showToast(✅ تم تحديث الأرقام: ${successNumbers.join(', ')}\n❌ الأرقام غير الموجودة: ${errors.join(', ')}, false);
+  } else if (successNumbers.length > 0) {
+    showToast(✅ تم التحديث بنجاح للأرقام: ${successNumbers.join(', ')});
+  } else if (errors.length > 0) {
+    showToast(❌ الأرقام غير الموجودة: ${errors.join(', ')}, false);
+  }
+  document.getElementById('existing-number').value = '';
+  document.getElementById('status-select').value = '';
+  document.getElementById('notes').value = '';
+  document.getElementById('edit-transaction-type').value = '';
+};
+</script>
+<div id="print-area" style="position: absolute; left: -9999px; font-size: 18px; padding: 20px; width: 500px;">
+  <p id="print-name"></p>
+  <p id="print-number"></p>
+  <p id="print-transaction"></p>
+</div>
+
+</body>
+</html>
   </div>
 </body>
 </html>
