@@ -43,7 +43,6 @@
   </script>
 </head>
 <body>
-  <h2>طلبات المعاملات القنصلية</h2>
   <div id="auth-section">
     <button id="google-login-btn" style="padding: 12px; font-size: 18px; background: #4285F4; color: white; border: none; border-radius: 5px; cursor: pointer;">
       تسجيل الدخول باستخدام Gmail
@@ -101,13 +100,6 @@
 <body>
   <h2 style="margin-bottom: 40px;">طلبات المعاملات القنصلية</h2>
 
-  <div id="auth-section">
-    <label>البريد الإلكتروني:</label>
-    <input type="email" id="email" />
-    <label>كلمة المرور:</label>
-    <input type="password" id="password" />
-    <button id="login-btn">تسجيل الدخول</button>
-  </div>
 
   <div id="app-section">
     <button id="logout-btn">تسجيل الخروج</button>
@@ -253,17 +245,6 @@ const SUPABASE_URL = 'https://esbgozuigjdavcxiaxon.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzYmdvenVpZ2pkYXZjeGlheG9uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQyMjU4NzUsImV4cCI6MjA1OTgwMTg3NX0.OiOH_0ZcTUPu6oMGILsq5oqm1FdCDBvzcHozs-4DNY0';
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-document.getElementById('login-btn').onclick = async () => {
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) return showToast('خطأ أثناء تسجيل الدخول: ' + error.message, false);
-  if (data.session) {
-    showToast('✅ تم تسجيل الدخول بنجاح.');
-    document.getElementById('auth-section').style.display = 'none';
-    document.getElementById('app-section').style.display = 'block';
-  }
-};
 
 document.getElementById('logout-btn').onclick = async () => {
   await supabase.auth.signOut();
